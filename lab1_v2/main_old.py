@@ -26,5 +26,4 @@ ttk.Button(frm, text="Вихід", command=window.destroy).grid(column=0, row=2)
 
 window.mainloop()
 
-text = "Hello, Gaius Julius Caesar!"
 n = 2
