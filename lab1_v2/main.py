@@ -81,6 +81,12 @@ class Cryptographic_system:
         cipher = CaesarCipher(key)
         decrypted_text = cipher.decrypt(text)
         return decrypted_text
+    
+
+    def decrypt_text_without_key(self, text, *args):
+        cipher = CaesarCipher(100)
+        decrypted_text = cipher.brute_force_attack(text)
+        return decrypted_text
 
 
     def encrypt_file(self, *args):
@@ -115,10 +121,11 @@ class Cryptographic_system:
                 
                 key = simpledialog.askinteger("Ключ шифрування", "Введіть числовий ключ для шифрування:")
                 if key is None:
-                    messagebox.showwarning("Скасовано", "Шифрування скасовано, оскільки не введено ключ.")
-                    return
-
-                decrypted_data = self.decrypt_text(data, key)
+                    decrypted_data = self.decrypt_text_without_key(data)
+                    # messagebox.showwarning("Скасовано", "Шифрування скасовано, оскільки не введено ключ.")
+                    # return
+                else:
+                    decrypted_data = self.decrypt_text(data, key)
 
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(decrypted_data)
@@ -130,8 +137,22 @@ class Cryptographic_system:
 
 
     def decrypt_file_without_key(self, *args):
-        pass
+        file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
+        if file_path:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = f.read()
+                
+                decrypted_data = self.decrypt_text_without_key(data)
 
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    for key, result in decrypted_data:
+                        f.write(f"Ключ {key}: {result}\n")
+
+                messagebox.showinfo("Розшифрування", "Файл успішно розшифровано!")
+
+            except Exception as e:
+                messagebox.showerror("Помилка", f"Не вдалося розшифрувати файл: {e}")
 
     def launchDeveloperInfo(self, *args):
         messagebox.showinfo(message="Розробник: Новотка Вікторія Іванівна, група ТВ-13")

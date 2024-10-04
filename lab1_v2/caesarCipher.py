@@ -37,6 +37,19 @@ class CaesarCipher:
         
         decrypted_text = ''.join([self._key_char(c, -self.key) for c in data])
         return decrypted_text
+    
+
+    def brute_force_attack(self, data):
+        self.validate_data(data) 
+        
+        possible_decryptions = []
+        max_key = max(len(self.eng_lower), len(self.ukr_lower))
+
+        for key in range(1, max_key):
+            decrypted_text = ''.join([self._key_char(c, -key) for c in data])
+            possible_decryptions.append((key, decrypted_text))
+        
+        return possible_decryptions
 
  
     def _key_char(self, c, key):
