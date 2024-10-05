@@ -123,8 +123,8 @@ class Cryptographic_system:
             
             print(self.key)
 
-        except ValueError:
-            print("Помилка: введіть дійсні числові значення для вектора.")
+        except ValueError as e:
+            messagebox.showerror("Помилка", f"Введіть дійсні числові значення для вектора. {e}")
 
 
     def open_file(self, *args):

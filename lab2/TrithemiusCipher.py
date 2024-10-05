@@ -60,8 +60,6 @@ class TrithemiusCipher:
         self.validate_data(data) 
 
         decrypted_text = ''.join([self._decrypt_key_char(c, i, self.key_type, self.key_value) for i, c in enumerate(data)])
-        print("hello") 
-
         return decrypted_text
     
 
