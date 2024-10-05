@@ -15,15 +15,10 @@ class TrithemiusCipher:
 
 
     def validate_key(self):
-        if not hasattr(self, 'key'):
-            raise ValueError("Ключ не встановлений.")
-
         if self.key_type in self.validation_cases:
             self.validation_cases[self.key_type]()
         else:
             raise ValueError("Невідомий тип ключа.")
-
-        print("Ключ успішно пройшов валідацію.")
 
 
     def _validate_3d(self):
@@ -56,46 +51,72 @@ class TrithemiusCipher:
         self.validate_key()  
         self.validate_data(data) 
         
-        encrypted_text = ''.join([self._key_char(c, self.key_type, self.key_value) for c in data])
+        encrypted_text = ''.join([self._key_char(c, i, self.key_type, self.key_value) for  i, c in enumerate(data)])
         return encrypted_text
 
 
     def decrypt(self, data):
         self.validate_key()  
-        self.validate_data(data)  
-        
-        decrypted_text = ''.join([self._key_char(c, i, self.key_type, self.key_value) for i, c in enumerate(data)])
+        self.validate_data(data) 
+
+        decrypted_text = ''.join([self._decrypt_key_char(c, i, self.key_type, self.key_value) for i, c in enumerate(data)])
+        print("hello") 
+
         return decrypted_text
     
 
-    def _set_key(self, key_type, key_value, position):
-        # 26
-        if key_type == "3D":
-            a, b, c = key_value
-            key = (a * position + b) % 33 
-        elif key_type == "2D":
-            a, b = key_value
-            key = (a * position + b) % 33  
-        elif key_type == "phrase":
-            phrase = key_value[0]
-            key = ord(phrase[position % len(phrase)]) % 33 
-        return key
-    
- 
     def _key_char(self, c, i, key_type, key_value):
-        key = self._set_key(key_type, key_value, i)
         if c in self.eng_lower:
+            key = self._set_key(key_type, key_value, i, len(self.eng_lower)) 
             return self._key_within_alphabet(c, self.eng_lower, key)
         elif c in self.eng_upper:
+            key = self._set_key(key_type, key_value, i, len(self.eng_upper))
             return self._key_within_alphabet(c, self.eng_upper, key)
         elif c in self.ukr_lower:
+            key = self._set_key(key_type, key_value, i, len(self.ukr_lower)) 
             return self._key_within_alphabet(c, self.ukr_lower, key)
         elif c in self.ukr_upper:
+            key = self._set_key(key_type, key_value, i, len(self.ukr_upper))
             return self._key_within_alphabet(c, self.ukr_upper, key)
         else:
+            return c 
+        
+
+    def _decrypt_key_char(self, c, i, key_type, key_value):
+        if c in self.eng_lower:
+            key = self._set_key(key_type, key_value, i, len(self.eng_lower))
+            return self._d_key_within_alphabet(c, self.eng_lower, -key)  
+        elif c in self.eng_upper:
+            key = self._set_key(key_type, key_value, i, len(self.eng_upper))
+            return self._d_key_within_alphabet(c, self.eng_upper, -key)
+        elif c in self.ukr_lower:
+            key = self._set_key(key_type, key_value, i, len(self.ukr_lower))
+            return self._d_key_within_alphabet(c, self.ukr_lower, -key)
+        elif c in self.ukr_upper:
+            key = self._set_key(key_type, key_value, i, len(self.ukr_upper))
+            return self._d_key_within_alphabet(c, self.ukr_upper, -key)
+        else:
             return c  
+            
+    
+    def _set_key(self, key_type, key_value, position, alphabet_length):
+        if key_type == "2D":
+            a, b = key_value
+            key = (a * position + b) % alphabet_length 
+        elif key_type == "3D":
+            a, b, c = key_value
+            key = (a*a + b*position + c) % alphabet_length
+        elif key_type == "phrase":
+            phrase = key_value[0]
+            key = ord(phrase[position % len(phrase)]) % alphabet_length
+        return key
 
 
     def _key_within_alphabet(self, char, alphabet, key):
         index = alphabet.index(char)
         return alphabet[(index + key) % len(alphabet)]
+    
+
+    def _d_key_within_alphabet(self, char, alphabet, key):
+        index = alphabet.index(char)
+        return alphabet[(index + len(alphabet) - abs(key)) % len(alphabet)]

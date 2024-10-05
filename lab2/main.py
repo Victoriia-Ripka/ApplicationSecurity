@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox, filedialog, simpledialog
 import os
-from trithemiusCipher import TrithemiusCipher
+from TrithemiusCipher import TrithemiusCipher
 
 
 BASE_DIR = os.path.dirname(__file__)
