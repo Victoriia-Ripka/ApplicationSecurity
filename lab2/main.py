@@ -1,8 +1,7 @@
 from tkinter import *
 from tkinter import messagebox, filedialog, simpledialog
 import os
-import string
-from caesarCipher import CaesarCipher
+from trithemiusCipher import TrithemiusCipher
 
 
 BASE_DIR = os.path.dirname(__file__)
@@ -13,6 +12,8 @@ if not os.path.exists(FILES_DIR):
 
 
 class Cryptographic_system:
+    key = ["type", [0, 0]]
+
     def __init__(self):
         self.root = Tk()
         self.root.title("Криптографічна система")
@@ -31,7 +32,6 @@ class Cryptographic_system:
 
         encryption_menu.add_command(label="Зашифрувати файл", command=self.encrypt_file)
         encryption_menu.add_command(label="Розшифрувати файл", command=self.decrypt_file)
-        encryption_menu.add_command(label="Розшифрувати файл перебором", command=self.decrypt_file_without_key)
         menubar.add_cascade(label="Шифрування", menu=encryption_menu)
 
         # Інформація про розробника
@@ -46,7 +46,85 @@ class Cryptographic_system:
         # Прив'язка події для показу інформації про розробника
         self.root.bind("<<OpenDeveloperInfo>>", self.launchDeveloperInfo)
 
+        # Кнопки для зміни типу ключа
+        button_frame = Frame(self.root)
+        button_frame.pack(pady=10)
+
+        btn_2d_vector = Button(button_frame, text="Двовимірний вектор", command=lambda: self.show_key_inputs("2D"))
+        btn_2d_vector.grid(row=0, column=0, padx=5)
+
+        btn_3d_vector = Button(button_frame, text="Тривимірний вектор", command=lambda: self.show_key_inputs("3D"))
+        btn_3d_vector.grid(row=0, column=1, padx=5)
+
+        btn_phrase = Button(button_frame, text="Фраза", command=lambda: self.show_key_inputs("phrase"))
+        btn_phrase.grid(row=0, column=2, padx=5)
+
+        # Поле для введення змінних
+        self.input_frame = Frame(self.root)
+        self.input_frame.pack(pady=10)
+
         self.root.mainloop()
+
+
+    def show_key_inputs(self, key_type):
+        for widget in self.input_frame.winfo_children():
+            widget.destroy()
+
+        if key_type == "2D":
+            Label(self.input_frame, text="A:").grid(row=0, column=0)
+            self.a_entry = Entry(self.input_frame)
+            self.a_entry.grid(row=0, column=1)
+
+            Label(self.input_frame, text="B:").grid(row=1, column=0)
+            self.b_entry = Entry(self.input_frame)
+            self.b_entry.grid(row=1, column=1)
+
+        elif key_type == "3D":
+            Label(self.input_frame, text="A:").grid(row=0, column=0)
+            self.a_entry = Entry(self.input_frame)
+            self.a_entry.grid(row=0, column=1)
+
+            Label(self.input_frame, text="B:").grid(row=1, column=0)
+            self.b_entry = Entry(self.input_frame)
+            self.b_entry.grid(row=1, column=1)
+
+            Label(self.input_frame, text="C:").grid(row=2, column=0)
+            self.c_entry = Entry(self.input_frame)
+            self.c_entry.grid(row=2, column=1)
+
+        elif key_type == "phrase":
+            Label(self.input_frame, text="Фраза:").grid(row=0, column=0)
+            self.phrase_entry = Entry(self.input_frame)
+            self.phrase_entry.grid(row=0, column=1)
+
+        # Додавання кнопки "Готово"
+        done_button = Button(self.input_frame, text="Готово", command=self.save_key)
+        done_button.grid(row=3, column=0, columnspan=2, pady=10)
+
+
+    def save_key(self):
+        try:
+            if hasattr(self, 'c_entry') and self.c_entry.winfo_exists():
+
+                if hasattr(self, 'a_entry') and self.a_entry.winfo_exists() and hasattr(self, 'b_entry') and self.b_entry.winfo_exists() :
+                    a = int(self.a_entry.get())
+                    b = int(self.b_entry.get())
+                    c = int(self.c_entry.get())
+                    self.key = ["3D", [a, b, c]]
+
+            elif hasattr(self, 'a_entry') and self.a_entry.winfo_exists() and hasattr(self, 'b_entry') and self.b_entry.winfo_exists():
+                a = int(self.a_entry.get())
+                b = int(self.b_entry.get())
+                self.key = ["2D", [a, b]]
+
+            if hasattr(self, 'phrase_entry') and self.phrase_entry.winfo_exists():
+                phrase = self.phrase_entry.get()
+                self.key = ["phrase", [phrase]]
+            
+            print(self.key)
+
+        except ValueError:
+            print("Помилка: введіть дійсні числові значення для вектора.")
 
 
     def open_file(self, *args):
@@ -72,22 +150,16 @@ class Cryptographic_system:
 
 
     def encrypt_text(self, text, key, *args):
-        cipher = CaesarCipher(key)
+        cipher = TrithemiusCipher(key)
         encrypted_text = cipher.encrypt(text)
         return encrypted_text
 
 
     def decrypt_text(self, text, key, *args):
-        cipher = CaesarCipher(key)
+        cipher = TrithemiusCipher(key)
         decrypted_text = cipher.decrypt(text)
         return decrypted_text
     
-
-    def decrypt_text_without_key(self, text, *args):
-        cipher = CaesarCipher(100)
-        decrypted_text = cipher.brute_force_attack(text)
-        return decrypted_text
-
 
     def encrypt_file(self, *args):
         file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
@@ -96,12 +168,7 @@ class Cryptographic_system:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     data = f.read()
 
-                key = simpledialog.askinteger("Ключ шифрування", "Введіть числовий ключ для шифрування:")
-                if key is None:
-                    messagebox.showwarning("Скасовано", "Шифрування скасовано, оскільки не введено ключ.")
-                    return
-
-                encrypted_data = self.encrypt_text(data, key)
+                encrypted_data = self.encrypt_text(data, self.key)
 
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(encrypted_data)
@@ -119,34 +186,10 @@ class Cryptographic_system:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     data = f.read()
                 
-                key = simpledialog.askinteger("Ключ шифрування", "Введіть числовий ключ для шифрування:")
-                if key is None:
-                    messagebox.showwarning("Скасовано", "Шифрування скасовано, оскільки не введено ключ.")
-                    return
-                
-                decrypted_data = self.decrypt_text(data, key)
+                decrypted_data = self.decrypt_text(data, self.key)
 
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(decrypted_data)
-
-                messagebox.showinfo("Розшифрування", "Файл успішно розшифровано!")
-
-            except Exception as e:
-                messagebox.showerror("Помилка", f"Не вдалося розшифрувати файл: {e}")
-
-
-    def decrypt_file_without_key(self, *args):
-        file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
-        if file_path:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    data = f.read()
-                
-                decrypted_data = self.decrypt_text_without_key(data)
-
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    for key, result in decrypted_data:
-                        f.write(f"Ключ {key}: {result}\n")
 
                 messagebox.showinfo("Розшифрування", "Файл успішно розшифровано!")
 
@@ -159,5 +202,6 @@ class Cryptographic_system:
 
 
 
-cs = Cryptographic_system()
+if __name__ == "__main__":
+    app = Cryptographic_system()
     
