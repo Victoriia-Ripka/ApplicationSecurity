@@ -92,9 +92,8 @@ class Cryptographic_system:
                 with open(os.path.join(FILES_DIR, 'text.txt'), 'r', encoding='utf-8') as f:
                     crypto_data = f.read()
 
-                matrix = [line.split() for line in crypto_data.splitlines()]
-                print("Matrix:", matrix)
-                
+                matrix = crypto_data.splitlines()
+
                 encrypted_data = self.encrypt_text(data, matrix)
 
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -116,8 +115,7 @@ class Cryptographic_system:
                 with open(os.path.join(FILES_DIR, 'text.txt'), 'r', encoding='utf-8') as f:
                     crypto_data = f.read()
 
-                matrix = [line.split() for line in crypto_data.splitlines()]
-                print("Matrix:", matrix)
+                matrix = crypto_data.splitlines()
 
                 decrypted_data = self.decrypt_text(data, matrix)
 

@@ -1,6 +1,3 @@
-import string
-
-
 class BookCipher:
     def __init__(self, matrix):
         self.matrix = matrix
@@ -23,9 +20,12 @@ class BookCipher:
         decrypted_text = []
         data_pairs = data.split()
         for pair in data_pairs:
-            if ',' in pair:
-                row, col = map(int, pair.split(','))
-                decrypted_text.append(self.matrix[row-1][col-1])
+            if ',' in pair and len(pair.split(',')) == 2:  
+                try:
+                    row, col = map(int, pair.split(','))
+                    decrypted_text.append(self.matrix[row-1][col-1])
+                except (ValueError, IndexError): 
+                    decrypted_text.append(pair)
             else:
                 decrypted_text.append(pair) 
 
@@ -36,3 +36,4 @@ class BookCipher:
             if char in row:
                 return i, row.index(char)
         return None, None  
+    
