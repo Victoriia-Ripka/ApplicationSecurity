@@ -1,11 +1,14 @@
 class BookCipher:
     def __init__(self, matrix):
-        self.matrix = matrix
+        self.matrix = matrix # г' є ї ф ш
         self.ukr_lower_alphabet = 'абвгґдеєжзийіїклмнопрстуфхцчшщьюя' 
         self.ukr_upper_alphabet = 'АБВГҐДЕЄЖЗИЙІЇКЛМНОПРСТУФХЦЧШЩЬЮЯ'
+        self.unwanted_chars = 'ґєїфш'
 
     def encrypt(self, data):
         encrypted_text = []
+        data = ''.join([char for char in data if char not in self.unwanted_chars])
+
         for char in data:
             lower_char = char.lower()
             row, col = self._find_char_in_matrix(lower_char)
@@ -19,6 +22,7 @@ class BookCipher:
     def decrypt(self, data):
         decrypted_text = []
         data_pairs = data.split()
+        
         for pair in data_pairs:
             if ',' in pair and len(pair.split(',')) == 2:  
                 try:
