@@ -55,8 +55,14 @@ class Cryptographic_system:
     def open_file(self, *args):
         file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
         if file_path:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                messagebox.showinfo("Друкування файлу", f.read())
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                with open(file_path, 'r', encoding='latin-1') as f:
+                    content = f.read()
+
+            messagebox.showinfo("Друкування файлу", content)
 
 
     def save_file(self, *args):

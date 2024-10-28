@@ -30,11 +30,3 @@ class DESCipher:
     def decrypt(self, data):
         decrypted_data = unpad(self.cipher.decrypt(data), DES.block_size)
         return decrypted_data.decode('utf-8')
-
-# Приклад використання
-# Ініціалізація об'єкта з режимом CBC
-# des_cipher = DESCipher(DES.MODE_CBC)
-
-# Шифрування та розшифрування файлу
-# des_cipher.encrypt_file("input.txt", "encrypted_test.txt")
-# des_cipher.decrypt_file("encrypted_test.txt", "decrypted_test.txt")
