@@ -16,7 +16,7 @@ class CryptographicSystem:
         self.root = Tk()
         self.root.title("Криптографічна система")
 
-        self.knapsack_cipher = KnapsackCipher(n=8)  # Generate keys with length 8
+        self.knapsack_cipher = None
 
         menubar = Menu(self.root)
         file_menu = Menu(menubar, tearoff=0)
@@ -27,6 +27,7 @@ class CryptographicSystem:
         encryption_menu = Menu(menubar, tearoff=0)
         encryption_menu.add_command(label="Зашифрувати файл", command=self.encrypt_file)
         encryption_menu.add_command(label="Розшифрувати файл", command=self.decrypt_file)
+        encryption_menu.add_command(label="Створити публічний ключ", command=self.create_public_key)
         menubar.add_cascade(label="Шифрування", menu=encryption_menu)
 
         menubar.add_cascade(label="Розробник", command=lambda: self.root.event_generate("<<OpenDeveloperInfo>>"))
@@ -36,6 +37,13 @@ class CryptographicSystem:
         self.root.bind("<<OpenDeveloperInfo>>", self.launchDeveloperInfo)
 
         self.root.mainloop()
+
+
+    def create_public_key(self):
+        size = simpledialog.askinteger("Розмір публічного ключа", "Введіть бажаний розмір публічного ключа (число):", minvalue=1)
+        if size is not None:
+            self.knapsack_cipher = KnapsackCipher(n=size)  # Create a new KnapsackCipher instance with specified size
+            messagebox.showinfo("Публічний ключ створено", f"Публічний ключ з розміром {size} успішно створено!\n\n{self.knapsack_cipher.public_key}")
 
 
     def open_file(self, *args):
@@ -63,6 +71,10 @@ class CryptographicSystem:
 
 
     def encrypt_file(self, *args):
+        if not self.knapsack_cipher:
+            messagebox.showerror("Помилка", "Спочатку створіть публічний ключ.")
+            return
+        
         file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
         if file_path:
             try:
@@ -70,17 +82,23 @@ class CryptographicSystem:
                     data = f.read()
 
                 # Convert message to binary string
-                binary_message = ''.join(format(ord(char), '08b') for char in data)
+                # binary_message = ''.join(format(ord(char), '08b') for char in data)
+                # print(binary_message)
 
-                public_key_length = len(binary_message)
+                public_key_length = len(data)
                 self.knapsack_cipher = KnapsackCipher(n=public_key_length)
+                print("Public key: ", self.knapsack_cipher.public_key)
+                print("Private key: ", self.knapsack_cipher.private_key)
+                print("Q: ", self.knapsack_cipher.q)
+                print("R: ", self.knapsack_cipher.r)
+
 
                 # Check if the binary message exceeds the public key length
-                if len(binary_message) > len(self.knapsack_cipher.public_key):
+                if len(data) > len(self.knapsack_cipher.public_key):
                     messagebox.showerror("Помилка", "Повідомлення занадто довге для шифрування.")
                     return
 
-                encrypted_data = self.knapsack_cipher.knapsack_encrypt(binary_message)
+                encrypted_data = self.knapsack_cipher.knapsack_encrypt(data)
 
                 with open(file_path, 'w') as f:
                     f.write(str(encrypted_data))
@@ -91,6 +109,10 @@ class CryptographicSystem:
 
 
     def decrypt_file(self, *args):
+        if not self.knapsack_cipher:
+            messagebox.showerror("Помилка", "Спочатку створіть публічний ключ.")
+            return
+        
         file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
         if file_path:
             try:
@@ -99,14 +121,8 @@ class CryptographicSystem:
 
                 decrypted_binary = self.knapsack_cipher.knapsack_decrypt(encrypted_data)
 
-                decrypted_message = ''
-                for i in range(0, len(decrypted_binary), 8):
-                    byte = decrypted_binary[i:i + 8]
-                    if len(byte) == 8:  # Ensure we have a full byte
-                        decrypted_message += chr(int(byte, 2))
-
                 with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(decrypted_message)
+                    f.write(decrypted_binary)
 
                 messagebox.showinfo("Розшифрування", "Файл успішно розшифровано!")
             except Exception as e:

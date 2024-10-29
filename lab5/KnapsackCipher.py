@@ -2,11 +2,11 @@ import random
 
 class KnapsackCipher:
     def __init__(self, n=8):
-        self.n = n 
+        self.n = n # size of the super-increasing sequence
         self.public_key = []
         self.private_key = []
-        self.q = 0
-        self.r = 0
+        self.q = 0 # modulus
+        self.r = 0 # random number
 
         # Generate keys upon initialization
         self.generate_keys()
