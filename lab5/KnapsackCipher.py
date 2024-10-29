@@ -22,16 +22,15 @@ class KnapsackCipher:
 
     def generate_keys(self):
         super_increasing_sequence = self.generate_super_increasing_sequence()
-        self.q = sum(super_increasing_sequence) + random.randint(1, 10)  # Modulus
-        self.r = random.randint(2, self.q - 1)
+        self.q = sum(super_increasing_sequence) + random.randint(1, 10)  # modulus
+        self.r = random.randint(2, self.q - 1) # random number
 
         # Ensure that r and q are coprime
         while self.gcd(self.r, self.q) != 1:
             self.r = random.randint(2, self.q - 1)
 
-        # Generate public key
         self.public_key = [(self.r * element) % self.q for element in super_increasing_sequence]
-        self.private_key = super_increasing_sequence  # Store the private key as the super-increasing sequence
+        self.private_key = super_increasing_sequence  
 
 
     def gcd(self, a, b):

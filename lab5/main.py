@@ -42,7 +42,7 @@ class CryptographicSystem:
     def create_public_key(self):
         size = simpledialog.askinteger("Розмір публічного ключа", "Введіть бажаний розмір публічного ключа (число):", minvalue=1)
         if size is not None:
-            self.knapsack_cipher = KnapsackCipher(n=size)  # Create a new KnapsackCipher instance with specified size
+            self.knapsack_cipher = KnapsackCipher(n=size)  
             messagebox.showinfo("Публічний ключ створено", f"Публічний ключ з розміром {size} успішно створено!\n\n{self.knapsack_cipher.public_key}")
 
 
@@ -81,9 +81,6 @@ class CryptographicSystem:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     data = f.read()
 
-                # Convert message to binary string
-                # binary_message = ''.join(format(ord(char), '08b') for char in data)
-                # print(binary_message)
 
                 public_key_length = len(data)
                 self.knapsack_cipher = KnapsackCipher(n=public_key_length)
