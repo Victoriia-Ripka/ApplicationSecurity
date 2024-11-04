@@ -25,7 +25,7 @@ class CryptographicSystem:
         encryption_menu = Menu(menubar, tearoff=0)
         encryption_menu.add_command(label="Створити публічний ключ", command=self.create_public_key)
         encryption_menu.add_command(label="Створити підпис", command=self.create_signature)
-        encryption_menu.add_command(label="Зашифрувати файл", command=self.encrypt_file)
+        encryption_menu.add_command(label="Підписати файл", command=self.encrypt_file)
         encryption_menu.add_command(label="Розшифрувати файл", command=self.decrypt_file)
         encryption_menu.add_command(label="Відомості про ключ", command=self.show_key_info)
         encryption_menu.add_command(label="Перевірити підпис", command=self.verify_signature)
