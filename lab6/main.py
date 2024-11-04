@@ -14,7 +14,6 @@ class CryptographicSystem:
     def __init__(self):
         self.root = Tk()
         self.root.title("Криптографічна система")
-
         self.RSA = RSACipher()
 
         menubar = Menu(self.root)
@@ -27,6 +26,7 @@ class CryptographicSystem:
         encryption_menu.add_command(label="Зашифрувати файл", command=self.encrypt_file)
         encryption_menu.add_command(label="Розшифрувати файл", command=self.decrypt_file)
         encryption_menu.add_command(label="Створити публічний ключ", command=self.create_public_key)
+        encryption_menu.add_command(label="Відомості про ключ", command=self.show_key_info)
         menubar.add_cascade(label="Шифрування", menu=encryption_menu)
 
         menubar.add_cascade(label="Розробник", command=lambda: self.root.event_generate("<<OpenDeveloperInfo>>"))
@@ -41,7 +41,15 @@ class CryptographicSystem:
         size = simpledialog.askinteger("Розмір ключа", "Введіть бажаний розмір ключа:", minvalue=1024)
         if size:
             public_key, private_key = self.RSA.generate_keys(size)
-            messagebox.showinfo("Ключі створено", f"Публічний ключ:\n{public_key}\nЗакритий ключ:\n{private_key}")
+            messagebox.showinfo("Ключі створено", f"Публічний ключ:\n{public_key}")
+
+    def show_key_info(self):
+        include_private = messagebox.askyesno("Інформація про ключ", "Включити приватний ключ?")
+        try:
+            key_info = self.RSA.get_key_info(include_private=include_private)
+            messagebox.showinfo("Відомості про ключ", key_info)
+        except ValueError as e:
+            messagebox.showerror("Помилка", str(e))
 
     def open_file(self):
         file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
