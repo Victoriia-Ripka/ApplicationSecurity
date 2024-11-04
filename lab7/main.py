@@ -23,10 +23,12 @@ class CryptographicSystem:
         menubar.add_cascade(label="Файл", menu=file_menu)
 
         encryption_menu = Menu(menubar, tearoff=0)
+        encryption_menu.add_command(label="Створити публічний ключ", command=self.create_public_key)
+        encryption_menu.add_command(label="Створити підпис", command=self.create_signature)
         encryption_menu.add_command(label="Зашифрувати файл", command=self.encrypt_file)
         encryption_menu.add_command(label="Розшифрувати файл", command=self.decrypt_file)
-        encryption_menu.add_command(label="Створити публічний ключ", command=self.create_public_key)
         encryption_menu.add_command(label="Відомості про ключ", command=self.show_key_info)
+        encryption_menu.add_command(label="Перевірити підпис", command=self.verify_signature)
         menubar.add_cascade(label="Шифрування", menu=encryption_menu)
 
         menubar.add_cascade(label="Розробник", command=lambda: self.root.event_generate("<<OpenDeveloperInfo>>"))
@@ -50,7 +52,7 @@ class CryptographicSystem:
             messagebox.showinfo("Відомості про ключ", key_info)
         except ValueError as e:
             messagebox.showerror("Помилка", str(e))
-
+    
     def open_file(self):
         file_path = filedialog.askopenfilename(initialdir=FILES_DIR, filetypes=[("Text files", "*.txt")])
         if file_path:
@@ -69,7 +71,7 @@ class CryptographicSystem:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(user_message)
                 messagebox.showinfo("Збережено", "Файл успішно збережено!")
-
+    
     def encrypt_file(self):
         if not self.RSA.public_key:
             messagebox.showerror("Помилка", "Спочатку створіть публічний ключ.")
@@ -109,6 +111,33 @@ class CryptographicSystem:
     def launchDeveloperInfo(self, *args):
         messagebox.showinfo(message="Розробник: Новотка Вікторія Іванівна, група ТВ-13")
 
+    def create_signature(self):
+        if not self.RSA.private_key:
+            messagebox.showerror("Помилка", "Спочатку створіть ключі.")
+            return
+        message = simpledialog.askstring("Повідомлення", "Введіть повідомлення для підпису:")
+        if message:
+            try:
+                signature = self.RSA.sign_message(message)
+                messagebox.showinfo("Підпис створено", f"Підпис:\n{signature}")
+            except Exception as e:
+                messagebox.showerror("Помилка створення підпису", str(e))
 
+    def verify_signature(self):
+        if not self.RSA.public_key:
+            messagebox.showerror("Помилка", "Спочатку створіть ключі.")
+            return
+        message = simpledialog.askstring("Повідомлення", "Введіть повідомлення для перевірки підпису:")
+        signature = simpledialog.askstring("Підпис", "Введіть підпис для перевірки:")
+        if message and signature:
+            try:
+                is_valid = self.RSA.verify_signature(message, signature)
+                verdict = "Підпис дійсний." if is_valid else "Підпис недійсний."
+                messagebox.showinfo("Перевірка підпису", verdict)
+            except Exception as e:
+                messagebox.showerror("Помилка перевірки підпису", str(e))
+
+
+# Запуск програми
 if __name__ == "__main__":
     app = CryptographicSystem()
